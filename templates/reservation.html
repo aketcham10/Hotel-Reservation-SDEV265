@@ -4,6 +4,31 @@
 <div class="container mt-4">
   <h1>Complete Your Reservation</h1>
 
+  {% if not check_in or not check_out %}
+  <!-- Show date selection form -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+      <div class="card shadow-lg">
+        <div class="card-body">
+          <h5 class="card-title">Select Your Stay Dates</h5>
+          <p class="text-muted">Please choose your check-in and check-out dates to continue.</p>
+          <form action="{{ url_for('reserve', room_id=room.room_id) }}" method="get">
+            <div class="mb-3">
+              <label for="check_in" class="form-label">Check-in Date</label>
+              <input type="date" class="form-control" id="check_in" name="check_in" required>
+            </div>
+            <div class="mb-3">
+              <label for="check_out" class="form-label">Check-out Date</label>
+              <input type="date" class="form-control" id="check_out" name="check_out" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Continue to Booking</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <!-- Show full reservation form -->
   <div class="row">
     <div class="col-md-6">
       <div class="card mb-4">
@@ -47,5 +72,6 @@
       </form>
     </div>
   </div>
+  {% endif %}
 </div>
 {% endblock %}

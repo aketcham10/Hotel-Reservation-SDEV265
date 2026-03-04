@@ -17,6 +17,7 @@
         <th>Rate</th>
         <th>Status</th>
         <th>Action</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -28,6 +29,9 @@
         <td>{{ room.status }}</td>
         <td>
           <a href="{{ url_for('reserve', room_id=room.room_id, check_in=check_in, check_out=check_out) }}" class="btn btn-sm btn-success">Book Now</a>
+        </td>
+        <td>
+            <a href="{{ url_for('room_details', room_id=room.room_id) }}" class="btn btn-sm btn-info">View Details</a>
         </td>
       </tr>
       {% endfor %}

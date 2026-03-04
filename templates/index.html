@@ -1,47 +1,56 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-  <h1>Welcome to Novara Luxe</h1>
-
-  <div class="card mb-4 search-hero text-white" style="background-image: url('{{ url_for('static', filename='images/balcony.webp') }}'); background-size: cover; background-position: center;">
-    <div class="card-body" style="background: rgba(0,0,0,0.35);">
-      <form class="row g-2" action="{{ url_for('rooms') }}" method="get">
+<div class="hero-section" style="background-image: url('{{ url_for('static', filename='images/balcony.webp') }}'); background-size: cover; background-position: center; height: 500px; position: relative;">
+  <div class="d-flex align-items-center justify-content-center h-100">
+    <div class="search-container" style="background: rgba(0,0,0,0.35); padding: 40px; border-radius: 8px;">
+      <h1 class="text-white mb-4 text-center">Welcome to Novara Luxe</h1>
+      <form class="row g-3" action="{{ url_for('rooms') }}" method="get">
         <div class="col-md-4">
-          <label for="check_in" class="form-label">Check-in</label>
+          <label for="check_in" class="form-label text-white">Check-in</label>
           <input type="date" class="form-control bg-white text-dark" id="check_in" name="check_in" required>
         </div>
         <div class="col-md-4">
-          <label for="check_out" class="form-label">Check-out</label>
+          <label for="check_out" class="form-label text-white">Check-out</label>
           <input type="date" class="form-control bg-white text-dark" id="check_out" name="check_out" required>
         </div>
         <div class="col-md-4 d-flex align-items-end">
-          <button type="submit" class="btn btn-light">Search Available Rooms</button>
+          <button type="submit" class="btn btn-light w-100">Search Available Rooms</button>
         </div>
       </form>
     </div>
   </div>
+</div>
 
-  <h2>Available Rooms</h2>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Number</th>
-        <th>Type</th>
-        <th>Rate</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for room in rooms %}
-      <tr>
-        <td>{{ room.room_number }}</td>
-        <td>{{ room.room_type }}</td>
-        <td>{{ room.rate }}</td>
-        <td>{{ room.status }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="container mt-4">
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Available Rooms</h2>
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Number</th>
+            <th>Type</th>
+            <th>Rate</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for room in rooms %}
+          <tr>
+            <td>{{ room.room_number }}</td>
+            <td>{{ room.room_type }}</td>
+            <td>${{ room.rate }}</td>
+            <td>{{ room.status }}</td>
+            <td>
+              <a href="{{ url_for('room_details', room_id=room.room_id) }}" class="btn btn-sm btn-info">View Details</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 {% endblock %}

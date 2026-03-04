@@ -112,6 +112,26 @@ def contact():
     # static contact page
     return render_template('contact.html')
 
+@app.route('/send-message', methods=['POST'])
+def send_message():
+    # dummy handler for contact form submissions
+    # grab form data; in real world we'd save or email it
+    name = request.form.get('name')
+    email = request.form.get('email')
+    subject = request.form.get('subject')
+    message = request.form.get('message')
+    # log for debugging
+    app.logger.info(f"Contact message from {name} <{email}> subject={subject}")
+    return render_template('contact_success.html')
+
+@app.route('/room-details/<int:room_id>')
+def room_details(room_id):
+    # show detailed information about a specific room
+    room = Room.query.get(room_id)
+    if not room:
+        return "Room not found", 404
+    return render_template('room_details.html', room=room)
+
 @app.route('/reserve/<int:room_id>')
 def reserve(room_id):
     # show reservation form for a specific room
@@ -122,8 +142,14 @@ def reserve(room_id):
     check_in = request.args.get('check_in')
     check_out = request.args.get('check_out')
 
+    # if dates are missing, render template without booking details, showing date selection form
     if not check_in or not check_out:
-        return "Check-in and check-out dates are required", 400
+        return render_template('reservation.html', 
+                             room=room, 
+                             check_in=None, 
+                             check_out=None,
+                             nights=None,
+                             total_cost=None)
 
     try:
         ci = datetime.strptime(check_in, '%Y-%m-%d').date()
