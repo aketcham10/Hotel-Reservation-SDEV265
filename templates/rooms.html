@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1>Search Results</h1>
+
+  {% if check_in and check_out %}
+  <p>Showing available rooms from <strong>{{ check_in }}</strong> to <strong>{{ check_out }}</strong>.</p>
+  {% endif %}
+
+  {% if rooms %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Number</th>
+        <th>Type</th>
+        <th>Rate</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for room in rooms %}
+      <tr>
+        <td>{{ room.room_number }}</td>
+        <td>{{ room.room_type }}</td>
+        <td>${{ room.rate }}</td>
+        <td>{{ room.status }}</td>
+        <td>
+          <a href="{{ url_for('reserve', room_id=room.room_id, check_in=check_in, check_out=check_out) }}" class="btn btn-sm btn-success">Book Now</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <div class="alert alert-warning">No rooms available for the selected dates.</div>
+  {% endif %}
+  <a href="{{ url_for('index') }}" class="btn btn-link">Back to Home</a>
+</div>
+{% endblock %}

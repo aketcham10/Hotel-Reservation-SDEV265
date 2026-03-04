@@ -1,4 +1,24 @@
 /* Add custom styles here */
 body {
     padding-top: 20px;
+    font-size: 1.3rem; /* slightly larger base text */
+    background-color: '#F0EAD6';
+}
+
+/* navbar dark brown-black background */
+.navbar {
+    background-color: #553a35;
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link {
+    color: #f8f9fa; /* light text for contrast */
+}
+
+.navbar .nav-link:hover {
+    color: #ddd;
+}
+
+* {
+    font-family: "Bodoni 72", "Didot", "Baskerville", "Garamond", "Times New Roman", serif;
 }

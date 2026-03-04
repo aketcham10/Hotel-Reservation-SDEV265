@@ -72,6 +72,122 @@ def index():
     rooms = Room.query.all()
     return render_template('index.html', rooms=rooms)
 
+@app.route('/rooms')
+def rooms():
+    # page listing rooms; if check-in/check-out provided, filter by availability
+    check_in = request.args.get('check_in')
+    check_out = request.args.get('check_out')
+
+    if check_in and check_out:
+        try:
+            ci = datetime.strptime(check_in, '%Y-%m-%d').date()
+            co = datetime.strptime(check_out, '%Y-%m-%d').date()
+        except ValueError:
+            # invalid dates; fall back to showing all rooms
+            rooms = Room.query.all()
+            return render_template('rooms.html', rooms=rooms, check_in=None, check_out=None)
+
+        # overlapping reservation exists when: res.check_in_date < co and res.check_out_date > ci
+        overlapping = db.session.query(Reservation).filter(
+            Reservation.room_id == Room.room_id,
+            Reservation.status != 'cancelled' ,
+            Reservation.check_in_date < co,
+            Reservation.check_out_date > ci
+        ).exists()
+
+        available_rooms = Room.query.filter(~overlapping).all()
+        return render_template('rooms.html', rooms=available_rooms, check_in=check_in, check_out=check_out)
+
+    # no dates provided: show all rooms
+    rooms = Room.query.all()
+    return render_template('rooms.html', rooms=rooms, check_in=None, check_out=None)
+
+@app.route('/about')
+def about():
+    # static about us page
+    return render_template('about.html')
+
+@app.route('/contact')
+def contact():
+    # static contact page
+    return render_template('contact.html')
+
+@app.route('/reserve/<int:room_id>')
+def reserve(room_id):
+    # show reservation form for a specific room
+    room = Room.query.get(room_id)
+    if not room:
+        return "Room not found", 404
+
+    check_in = request.args.get('check_in')
+    check_out = request.args.get('check_out')
+
+    if not check_in or not check_out:
+        return "Check-in and check-out dates are required", 400
+
+    try:
+        ci = datetime.strptime(check_in, '%Y-%m-%d').date()
+        co = datetime.strptime(check_out, '%Y-%m-%d').date()
+    except ValueError:
+        return "Invalid date format", 400
+
+    nights = (co - ci).days
+    if nights <= 0:
+        return "Check-out must be after check-in", 400
+
+    total_cost = float(room.rate) * nights
+
+    return render_template('reservation.html', 
+                         room=room, 
+                         check_in=check_in, 
+                         check_out=check_out,
+                         nights=nights,
+                         total_cost=total_cost)
+
+@app.route('/make-reservation', methods=['POST'])
+def make_reservation():
+    # create guest and reservation
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    room_id = request.form.get('room_id', type=int)
+    check_in_str = request.form.get('check_in')
+    check_out_str = request.form.get('check_out')
+
+    if not all([name, email, phone, room_id, check_in_str, check_out_str]):
+        return "All fields are required", 400
+
+    try:
+        check_in = datetime.strptime(check_in_str, '%Y-%m-%d').date()
+        check_out = datetime.strptime(check_out_str, '%Y-%m-%d').date()
+    except ValueError:
+        return "Invalid date format", 400
+
+    room = Room.query.get(room_id)
+    if not room:
+        return "Room not found", 404
+
+    # create guest
+    guest = Guest(name=name, email=email, phone=phone)
+    db.session.add(guest)
+    db.session.flush()  # flush to get the guest_id without committing
+
+    # create reservation
+    reservation = Reservation(
+        guest_id=guest.guest_id,
+        room_id=room_id,
+        check_in_date=check_in,
+        check_out_date=check_out,
+        status='booked'
+    )
+    db.session.add(reservation)
+    db.session.commit()
+
+    return render_template('confirmation.html', 
+                         guest=guest, 
+                         room=room, 
+                         reservation=reservation)
+
 @app.route('/api/rooms')
 def get_rooms():
     # simple JSON endpoint for rooms data

@@ -2,7 +2,27 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h1>Available Rooms</h1>
+  <h1>Welcome to Novara Luxe</h1>
+
+  <div class="card mb-4 search-hero text-white" style="background-image: url('{{ url_for('static', filename='images/balcony.webp') }}'); background-size: cover; background-position: center;">
+    <div class="card-body" style="background: rgba(0,0,0,0.35);">
+      <form class="row g-2" action="{{ url_for('rooms') }}" method="get">
+        <div class="col-md-4">
+          <label for="check_in" class="form-label">Check-in</label>
+          <input type="date" class="form-control bg-white text-dark" id="check_in" name="check_in" required>
+        </div>
+        <div class="col-md-4">
+          <label for="check_out" class="form-label">Check-out</label>
+          <input type="date" class="form-control bg-white text-dark" id="check_out" name="check_out" required>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <button type="submit" class="btn btn-light">Search Available Rooms</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <h2>Available Rooms</h2>
   <table class="table table-striped">
     <thead>
       <tr>
