@@ -1,4 +1,6 @@
-from flask import Flask, request, jsonify
+from dbm import sqlite3
+
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
 from decimal import Decimal
@@ -10,11 +12,16 @@ logging.basicConfig(filename='app.log', level=logging.DEBUG,
 
 app = Flask(__name__)
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///hotel.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'db/sdev265.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.app_context().push()
 
 db = SQLAlchemy(app)
+def get_db_connection():
+    conn = sqlite3.connect('db/sdev265.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
 class Guest(db.Model):
     guest_id = db.Column(db.Integer, primary_key=True)
@@ -61,7 +68,24 @@ class Payment(db.Model):
 
 @app.route('/')
 def index():
-    return jsonify({'message': 'Hotel Reservation API running'})
+    # render the frontend home page with a list of rooms
+    rooms = Room.query.all()
+    return render_template('index.html', rooms=rooms)
+
+@app.route('/api/rooms')
+def get_rooms():
+    # simple JSON endpoint for rooms data
+    rooms = Room.query.all()
+    return jsonify([
+        {
+            'room_id': r.room_id,
+            'room_number': r.room_number,
+            'room_type': r.room_type,
+            'rate': float(r.rate),
+            'status': r.status
+        }
+        for r in rooms
+    ])
 
 if __name__ == '__main__':
     db.create_all()

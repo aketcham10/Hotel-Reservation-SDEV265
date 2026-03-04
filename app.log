@@ -1,0 +1,35 @@
+2026-03-02 18:30:13,184 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-02 18:30:13,184 INFO: [33mPress CTRL+C to quit[0m
+2026-03-02 18:30:13,185 INFO:  * Restarting with stat
+2026-03-02 18:30:13,631 WARNING:  * Debugger is active!
+2026-03-02 18:30:13,634 INFO:  * Debugger PIN: 412-698-009
+2026-03-02 18:30:54,589 INFO: 127.0.0.1 - - [02/Mar/2026 18:30:54] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-02 18:30:54,770 INFO: 127.0.0.1 - - [02/Mar/2026 18:30:54] "GET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2026-03-02 18:30:54,780 INFO: 127.0.0.1 - - [02/Mar/2026 18:30:54] "GET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2026-03-02 18:30:55,191 INFO: 127.0.0.1 - - [02/Mar/2026 18:30:55] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=wbaAfzmsRk8EeXVppEy4 HTTP/1.1" 200 -
+2026-03-02 18:30:55,240 INFO: 127.0.0.1 - - [02/Mar/2026 18:30:55] "GET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2026-03-02 18:31:08,038 INFO:  * Detected change in 'd:\\group project sdev265\\Hotel-Reservation-SDEV265\\backend.py', reloading
+2026-03-02 18:31:08,075 INFO:  * Restarting with stat
+2026-03-02 18:31:08,563 WARNING:  * Debugger is active!
+2026-03-02 18:31:08,565 INFO:  * Debugger PIN: 412-698-009
+2026-03-02 18:31:08,613 INFO: 127.0.0.1 - - [02/Mar/2026 18:31:08] "GET / HTTP/1.1" 200 -
+2026-03-02 18:31:08,684 INFO: 127.0.0.1 - - [02/Mar/2026 18:31:08] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-02 18:32:23,617 INFO:  * Detected change in 'd:\\group project sdev265\\Hotel-Reservation-SDEV265\\backend.py', reloading
+2026-03-02 18:32:23,650 INFO:  * Restarting with stat
+2026-03-02 18:32:24,163 WARNING:  * Debugger is active!
+2026-03-02 18:32:24,166 INFO:  * Debugger PIN: 412-698-009
+2026-03-02 18:32:24,330 INFO: 127.0.0.1 - - [02/Mar/2026 18:32:24] "GET / HTTP/1.1" 200 -
+2026-03-02 18:37:34,801 INFO:  * Detected change in 'd:\\group project sdev265\\Hotel-Reservation-SDEV265\\backend.py', reloading
+2026-03-02 18:37:34,847 INFO:  * Restarting with stat
+2026-03-02 18:37:35,387 WARNING:  * Debugger is active!
+2026-03-02 18:37:35,389 INFO:  * Debugger PIN: 412-698-009
+2026-03-02 18:39:03,824 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-02 18:39:03,825 INFO: [33mPress CTRL+C to quit[0m
+2026-03-02 18:39:03,825 INFO:  * Restarting with stat
+2026-03-02 18:39:04,256 WARNING:  * Debugger is active!
+2026-03-02 18:39:04,259 INFO:  * Debugger PIN: 412-698-009
+2026-03-02 18:39:06,990 INFO: 127.0.0.1 - - [02/Mar/2026 18:39:06] "GET / HTTP/1.1" 200 -
+2026-03-02 18:39:07,168 INFO: 127.0.0.1 - - [02/Mar/2026 18:39:07] "GET /static/css/style.css HTTP/1.1" 200 -
+2026-03-02 18:39:07,168 INFO: 127.0.0.1 - - [02/Mar/2026 18:39:07] "GET /static/js/app.js HTTP/1.1" 200 -
