@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Reservation Confirmed!</h4>
+    <p>Your reservation has been successfully booked.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Reservation Details</h5>
+      <p><strong>Reservation ID:</strong> {{ reservation.reservation_id }}</p>
+      <p><strong>Guest Name:</strong> {{ guest.name }}</p>
+      <p><strong>Email:</strong> {{ guest.email }}</p>
+      <p><strong>Phone:</strong> {{ guest.phone }}</p>
+      <hr>
+      <p><strong>Room:</strong> {{ room.room_number }} ({{ room.room_type }})</p>
+      <p><strong>Check-in:</strong> {{ reservation.check_in_date }}</p>
+      <p><strong>Check-out:</strong> {{ reservation.check_out_date }}</p>
+      <p><strong>Rate:</strong> ${{ room.rate }}/night</p>
+      <p><strong>Status:</strong> <span class="badge bg-success">{{ reservation.status }}</span></p>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

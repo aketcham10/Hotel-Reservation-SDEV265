@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+  <div class="alert alert-success">
+    <h4 class="alert-heading">Message Sent</h4>
+    <p>Thank you for contacting us! We appreciate your message and will get back to you shortly.</p>
+  </div>
+  <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Home</a>
+</div>
+{% endblock %}

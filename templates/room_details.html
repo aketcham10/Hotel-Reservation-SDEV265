@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <a href="javascript:history.back()" class="btn btn-secondary mb-3">Back</a>
+
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <!-- Room Image -->
+      <div class="mb-4">
+        {% if room.room_type == 'Single' %}
+        <img src="{{ url_for('static', filename='images/single bed.jpg') }}" alt="Single Room" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
+        {% elif room.room_type == 'Double' %}
+        <img src="{{ url_for('static', filename='images/double bed.jpg') }}" alt="Double Room" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
+        {% elif room.room_type == 'Suite' %}
+        <img src="{{ url_for('static', filename='images/suite.jpg') }}" alt="Suite Room" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
+        {% endif %}
+      </div>
+
+      <h1>{{ room.room_number }} - {{ room.room_type }}</h1>
+      <hr>
+
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <h5>Room Information</h5>
+          <p><strong>Type:</strong> {{ room.room_type }}</p>
+          <p><strong>Rate:</strong> ${{ room.rate }} per night</p>
+          <p><strong>Status:</strong> <span class="badge bg-success">{{ room.status }}</span></p>
+        </div>
+
+        <div class="col-md-6">
+          {% if room.room_type == 'Single' %}
+          <h5>Room Features</h5>
+          <ul>
+            <li>Single bed (Twin or Queen)</li>
+            <li>Private bathroom with shower</li>
+            <li>Air conditioning</li>
+            <li>Cable TV</li>
+            <li>Free Wi-Fi</li>
+            <li>Work desk and chair</li>
+            <li>Modern furnishings</li>
+          </ul>
+
+          {% elif room.room_type == 'Double' %}
+          <h5>Room Features</h5>
+          <ul>
+            <li>Spacious double bed</li>
+            <li>Private bathroom with shower/tub</li>
+            <li>Air conditioning</li>
+            <li>Smart TV with premium channels</li>
+            <li>High-speed Wi-Fi</li>
+            <li>Work desk and seating area</li>
+            <li>City or garden view options</li>
+            <li>Premium bedding and linens</li>
+          </ul>
+
+          {% elif room.room_type == 'Suite' %}
+          <h5>Suite Features</h5>
+          <ul>
+            <li>King bed in separate bedroom</li>
+            <li>Spacious living room with sofa</li>
+            <li>Luxury marble bathroom with soaking tub and rainfall shower</li>
+            <li>Climate control system</li>
+            <li>Smart TV in bedroom and living area</li>
+            <li>High-speed Wi-Fi</li>
+            <li>Executive work desk with ergonomic chair</li>
+            <li>Private balcony with city skyline views</li>
+            <li>Premium mini bar and coffee maker</li>
+            <li>Turndown service included</li>
+          </ul>
+
+          {% else %}
+          <h5>Room Features</h5>
+          <p>Standard amenities and comfort.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="text-center">
+        <a href="{{ url_for('reserve', room_id=room.room_id) }}" class="btn btn-primary btn-lg">Book This Room</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

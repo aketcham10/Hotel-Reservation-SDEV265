@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1>About Us</h1>
+  <div class="row align-items-center mt-4">
+    <div class="col-md-6">
+      <p>Welcome to Novara Luxe! Nestled in the heart of Bloomington, our boutique hotel combines modern elegance with personalized hospitality. From plush bedding to curated local experiences, every detail is designed with your comfort in mind. Whether you're traveling for business or leisure, our attentive staff is here to ensure a memorable stay.</p>
+      <p>Our commitment to sustainability and community is reflected in our partnerships with local artisans and our eco-friendly practices. Enjoy farm-to-table dining, bespoke amenities, and a serene atmosphere that makes Novara Luxe a premier destination in Indiana.</p>
+    </div>
+    <div class="col-md-6 text-center">
+      <img src="{{ url_for('static', filename='images/lobby.jpg') }}" alt="Hotel view" class="img-fluid rounded" style="width: auto;">
+    </div>
+  </div>
+</div>
+{% endblock %}
