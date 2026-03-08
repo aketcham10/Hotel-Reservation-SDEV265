@@ -38,7 +38,7 @@ class Reservation(db.Model):
     check_in_date = db.Column(db.Date, nullable=False)
     check_out_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), default='booked')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
 class Stay(db.Model):
     stay_id = db.Column(db.Integer, primary_key=True)
@@ -51,7 +51,7 @@ class Charge(db.Model):
     stay_id = db.Column(db.Integer, db.ForeignKey('stay.stay_id'))
     description = db.Column(db.String(200))
     amount = db.Column(db.Numeric(10,2))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
 class Payment(db.Model):
     payment_id = db.Column(db.Integer, primary_key=True)
@@ -59,7 +59,7 @@ class Payment(db.Model):
     amount = db.Column(db.Numeric(10,2))
     method = db.Column(db.String(20))
     status = db.Column(db.String(20))
-    paid_at = db.Column(db.DateTime, default=datetime.utcnow)
+    paid_at = db.Column(db.DateTime, default=datetime.now)
 
 @app.route('/')
 def index():
@@ -164,8 +164,8 @@ def room_details(room_id):
     Returns:
         Rendered HTML page
     """
-
-    room = Room.query.get(room_id)
+    session = db.session
+    room = session.get(Room, room_id)
     if not room:
         return "Room not found", 404
     return render_template('room_details.html', room=room)
@@ -186,7 +186,8 @@ def reserve(room_id):
         404: If the room is not found
         400: If the date format is invalid or if the check-out date is not after the check-in date
     """
-    room = Room.query.get(room_id)
+    session = db.session
+    room = session.get(Room, room_id)
     if not room:
         return "Room not found", 404
 
@@ -220,7 +221,7 @@ def reserve(room_id):
                          check_out=check_out,
                          nights=nights,
                          total_cost=total_cost)
-
+# Make reservation route
 @app.route('/make-reservation', methods=['POST'])
 def make_reservation():
     # create guest and reservation
@@ -257,7 +258,8 @@ def make_reservation():
     except ValueError:
         return "Invalid date format", 400
 
-    room = Room.query.get(room_id)
+    session = db.session
+    room = session.get(Room, room_id)
     if not room:
         return "Room not found", 404
 
