@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from decimal import Decimal
 import os
 import logging
@@ -35,7 +35,8 @@ class Guest(db.Model, UserMixin):
     phone = db.Column(db.String(20))
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # use timezone-aware default to avoid deprecation warning
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -61,7 +62,8 @@ class Reservation(db.Model):
     check_in_date = db.Column(db.Date, nullable=False)
     check_out_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), default='booked')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # timezone-aware default to quiet SQLAlchemy warning
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     guest = db.relationship('Guest', backref='reservations')
     room = db.relationship('Room', backref='reservations')
 
