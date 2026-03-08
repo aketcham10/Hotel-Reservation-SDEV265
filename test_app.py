@@ -1,5 +1,5 @@
 import unittest
-from app import app, db, Guest, Room, Reservation
+from backend import app, db, Guest, Room, Reservation
 from datetime import date
 
 class HotelAPITestCase(unittest.TestCase):
@@ -21,7 +21,7 @@ class HotelAPITestCase(unittest.TestCase):
         # Test the root route
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Hotel Reservation API running', response.data)
+        self.assertIn(b'Welcome to Novara Luxe', response.data)
 
     def test_create_guest(self):
         # Test adding a guest

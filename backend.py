@@ -18,11 +18,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.app_context().push()
 
 db = SQLAlchemy(app)
-def get_db_connection():
-    conn = sqlite3.connect('db/sdev265.db')
-    conn.row_factory = sqlite3.Row
-    return conn
-
 class Guest(db.Model):
     guest_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -43,7 +38,7 @@ class Reservation(db.Model):
     check_in_date = db.Column(db.Date, nullable=False)
     check_out_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), default='booked')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
 class Stay(db.Model):
     stay_id = db.Column(db.Integer, primary_key=True)
@@ -56,7 +51,7 @@ class Charge(db.Model):
     stay_id = db.Column(db.Integer, db.ForeignKey('stay.stay_id'))
     description = db.Column(db.String(200))
     amount = db.Column(db.Numeric(10,2))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
 class Payment(db.Model):
     payment_id = db.Column(db.Integer, primary_key=True)
@@ -64,17 +59,30 @@ class Payment(db.Model):
     amount = db.Column(db.Numeric(10,2))
     method = db.Column(db.String(20))
     status = db.Column(db.String(20))
-    paid_at = db.Column(db.DateTime, default=datetime.utcnow)
+    paid_at = db.Column(db.DateTime, default=datetime.now)
 
 @app.route('/')
 def index():
     # render the frontend home page with a list of rooms
+    """
+    Render the frontend home page with a list of rooms.
+
+    Returns:
+        Rendered HTML page
+    """
     rooms = Room.query.all()
     return render_template('index.html', rooms=rooms)
 
 @app.route('/rooms')
 def rooms():
     # page listing rooms; if check-in/check-out provided, filter by availability
+    """
+    Page listing rooms; if check-in/check-out provided, filter by availability.
+
+    Returns:
+        Rendered HTML page
+    """
+
     check_in = request.args.get('check_in')
     check_out = request.args.get('check_out')
 
@@ -105,17 +113,37 @@ def rooms():
 @app.route('/about')
 def about():
     # static about us page
+    """
+    Static about us page.
+
+    Returns:
+        Rendered HTML page
+    """
     return render_template('about.html')
 
 @app.route('/contact')
 def contact():
     # static contact page
+    """
+    Static contact page.
+
+    Returns:
+        Rendered HTML page
+    """
     return render_template('contact.html')
 
 @app.route('/send-message', methods=['POST'])
 def send_message():
     # dummy handler for contact form submissions
     # grab form data; in real world we'd save or email it
+    """
+    Dummy handler for contact form submissions.
+
+    Grabs form data from the request object and logs it for debugging purposes.
+
+    Returns:
+        Rendered HTML page
+    """
     name = request.form.get('name')
     email = request.form.get('email')
     subject = request.form.get('subject')
@@ -127,7 +155,17 @@ def send_message():
 @app.route('/room-details/<int:room_id>')
 def room_details(room_id):
     # show detailed information about a specific room
-    room = Room.query.get(room_id)
+    """
+    Show detailed information about a specific room.
+
+    Args:
+        room_id (int): The room number to show details for.
+
+    Returns:
+        Rendered HTML page
+    """
+    session = db.session
+    room = session.get(Room, room_id)
     if not room:
         return "Room not found", 404
     return render_template('room_details.html', room=room)
@@ -135,7 +173,21 @@ def room_details(room_id):
 @app.route('/reserve/<int:room_id>')
 def reserve(room_id):
     # show reservation form for a specific room
-    room = Room.query.get(room_id)
+    """
+    Show reservation form for a specific room.
+
+    Args:
+        room_id (int): The room number to show the reservation form for.
+
+    Returns:
+        Rendered HTML page
+
+    Raises:
+        404: If the room is not found
+        400: If the date format is invalid or if the check-out date is not after the check-in date
+    """
+    session = db.session
+    room = session.get(Room, room_id)
     if not room:
         return "Room not found", 404
 
@@ -169,10 +221,27 @@ def reserve(room_id):
                          check_out=check_out,
                          nights=nights,
                          total_cost=total_cost)
-
+# Make reservation route
 @app.route('/make-reservation', methods=['POST'])
 def make_reservation():
     # create guest and reservation
+    """
+    Create a guest and a reservation from form data.
+
+    Args:
+        name (str): Guest name
+        email (str): Guest email
+        phone (str): Guest phone number
+        room_id (int): Room ID to book
+        check_in_str (str): Check-in date in YYYY-MM-DD format
+        check_out_str (str): Check-out date in YYYY-MM-DD format
+
+    Returns:
+        Rendered HTML page
+    Raises:
+        400: If any of the form fields are missing, or if the date format is invalid
+        404: If the room is not found
+    """
     name = request.form.get('name')
     email = request.form.get('email')
     phone = request.form.get('phone')
@@ -189,7 +258,8 @@ def make_reservation():
     except ValueError:
         return "Invalid date format", 400
 
-    room = Room.query.get(room_id)
+    session = db.session
+    room = session.get(Room, room_id)
     if not room:
         return "Room not found", 404
 
@@ -217,6 +287,17 @@ def make_reservation():
 @app.route('/api/rooms')
 def get_rooms():
     # simple JSON endpoint for rooms data
+    """
+    Return a JSON object containing all rooms data.
+
+    Returns:
+        A JSON object containing a list of room data objects with the following keys:
+            room_id (int): Unique identifier for the room.
+            room_number (str): Room number as displayed on the hotel's website.
+            room_type (str): Type of room (Single, Double, Suite).
+            rate (float): Room rate per night.
+            status (str): Room status (booked, available).
+    """
     rooms = Room.query.all()
     return jsonify([
         {
