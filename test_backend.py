@@ -8,7 +8,10 @@ def client():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     with app.app_context():
         db.create_all()
-        # Add some test data
+        # apply the same seeding logic used in the main app
+        from backend import seed_default_rooms
+        seed_default_rooms()
+        # add additional test-specific rooms
         room1 = Room(room_number='101', room_type='Single', rate=100.00, status='available')
         room2 = Room(room_number='102', room_type='Double', rate=150.00, status='available')
         db.session.add(room1)
@@ -38,6 +41,28 @@ def test_about(client):
     response = client.get('/about')
     assert response.status_code == 200
 
+def test_registration_and_login(client):
+    # register new user
+    reg = client.post('/register', data={
+        'name': 'Alice',
+        'email': 'alice@example.com',
+        'phone': '555-1234',
+        'password': 'secret'
+    }, follow_redirects=True)
+    assert reg.status_code == 200
+    # login with created user
+    login = client.post('/login', data={
+        'email': 'alice@example.com',
+        'password': 'secret'
+    }, follow_redirects=True)
+    assert login.status_code == 200
+
+def test_dashboard_requires_login(client):
+    response = client.get('/dashboard')
+    # should redirect to login page
+    assert response.status_code == 302
+    assert '/login' in response.headers.get('Location', '')
+
 def test_contact(client):
     response = client.get('/contact')
     assert response.status_code == 200
@@ -60,48 +85,65 @@ def test_room_details_not_found(client):
     assert response.status_code == 404
 
 def test_reserve_no_dates(client):
+    login_test_user(client)
     response = client.get('/reserve/1')
     assert response.status_code == 200
 
 def test_reserve_with_dates(client):
+    login_test_user(client)
     response = client.get('/reserve/1?check_in=2023-01-01&check_out=2023-01-02')
     assert response.status_code == 200
 
 def test_reserve_invalid_dates(client):
+    login_test_user(client)
     response = client.get('/reserve/1?check_in=invalid&check_out=2023-01-02')
     assert response.status_code == 400
 
 def test_reserve_checkout_before_checkin(client):
+    login_test_user(client)
     response = client.get('/reserve/1?check_in=2023-01-02&check_out=2023-01-01')
     assert response.status_code == 400
 
 def test_reserve_room_not_found(client):
+    login_test_user(client)
     response = client.get('/reserve/999?check_in=2023-01-01&check_out=2023-01-02')
     assert response.status_code == 404
 
-def test_make_reservation_success(client):
-    response = client.post('/make-reservation', data={
+
+# helper to register and login a test user
+def login_test_user(client):
+    client.post('/register', data={
         'name': 'John Doe',
         'email': 'john@example.com',
         'phone': '123-456-7890',
+        'password': 'password123'
+    }, follow_redirects=True)
+    client.post('/login', data={
+        'email': 'john@example.com',
+        'password': 'password123'
+    }, follow_redirects=True)
+
+
+def test_make_reservation_success(client):
+    login_test_user(client)
+    response = client.post('/make-reservation', data={
         'room_id': '1',
         'check_in': '2023-01-01',
         'check_out': '2023-01-02'
     })
     assert response.status_code == 200
 
+
 def test_make_reservation_missing_fields(client):
+    login_test_user(client)
     response = client.post('/make-reservation', data={
-        'name': 'John Doe',
-        # missing email, etc.
+        # missing required fields
     })
     assert response.status_code == 400
 
 def test_make_reservation_invalid_date(client):
+    login_test_user(client)
     response = client.post('/make-reservation', data={
-        'name': 'John Doe',
-        'email': 'john@example.com',
-        'phone': '123-456-7890',
         'room_id': '1',
         'check_in': 'invalid',
         'check_out': '2023-01-02'
@@ -109,10 +151,8 @@ def test_make_reservation_invalid_date(client):
     assert response.status_code == 400
 
 def test_make_reservation_room_not_found(client):
+    login_test_user(client)
     response = client.post('/make-reservation', data={
-        'name': 'John Doe',
-        'email': 'john@example.com',
-        'phone': '123-456-7890',
         'room_id': '999',
         'check_in': '2023-01-01',
         'check_out': '2023-01-02'
@@ -124,5 +164,6 @@ def test_get_rooms(client):
     assert response.status_code == 200
     data = response.get_json()
     assert isinstance(data, list)
-    assert len(data) == 2  # We added 2 rooms
-    assert data[0]['room_number'] == '101'
+    assert len(data) >= 2  # default rooms plus any added
+    # ensure seeding happened by checking for at least one default room
+    assert any(r['room_number'].startswith('S') for r in data)

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">My Reservations</h2>
+    {% if reservations %}
+        <div class="row">
+            {% for reservation in reservations %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Reservation #{{ reservation.reservation_id }}</h5>
+                        <p class="card-text">
+                            <strong>Room:</strong> {{ reservation.room.room_number }} ({{ reservation.room.room_type }})<br>
+                            <strong>Check-in:</strong> {{ reservation.check_in_date }}<br>
+                            <strong>Check-out:</strong> {{ reservation.check_out_date }}<br>
+                            <strong>Status:</strong> {{ reservation.status }}<br>
+                            <strong>Created:</strong> {{ reservation.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You have no reservations yet.</p>
+        <a href="{{ url_for('rooms') }}" class="btn btn-primary">Book a Room</a>
+    {% endif %}
+</div>
+{% endblock %}

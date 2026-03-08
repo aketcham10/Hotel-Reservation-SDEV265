@@ -1,7 +1,9 @@
 from dbm import sqlite3
 
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date
 from decimal import Decimal
 import os
@@ -11,6 +13,7 @@ logging.basicConfig(filename='app.log', level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s: %(message)s')
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this in production
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'db/sdev265.db')
@@ -18,11 +21,31 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.app_context().push()
 
 db = SQLAlchemy(app)
-class Guest(db.Model):
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Guest.query.get(int(user_id))
+
+class Guest(db.Model, UserMixin):
     guest_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(20))
-    email = db.Column(db.String(120))
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def get_id(self):
+        # Flask-Login expects a string ID; override to use guest_id
+        return str(self.guest_id)
 
 class Room(db.Model):
     room_id = db.Column(db.Integer, primary_key=True)
@@ -41,6 +64,25 @@ class Reservation(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     guest = db.relationship('Guest', backref='reservations')
     room = db.relationship('Room', backref='reservations')
+
+
+def seed_default_rooms():
+    """Add a default set of rooms if the rooms table is empty.
+
+    Creates 3 singles @150, 3 doubles @200, and 2 suites @300. Called
+    during database initialization.
+    """
+    if Room.query.count() == 0:
+        defaults = []
+        # using simple numbering; adjust as needed
+        for i in range(1, 4):
+            defaults.append(Room(room_number=f'S{i:03}', room_type='Single', rate=150.00))
+        for i in range(1, 4):
+            defaults.append(Room(room_number=f'D{i:03}', room_type='Double', rate=200.00))
+        for i in range(1, 3):
+            defaults.append(Room(room_number=f'SU{i:03}', room_type='Suite', rate=300.00))
+        db.session.add_all(defaults)
+        db.session.commit()
 
 @app.route('/')
 def index():
@@ -133,6 +175,59 @@ def send_message():
     app.logger.info(f"Contact message from {name} <{email}> subject={subject}")
     return render_template('contact_success.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        password = request.form.get('password')
+
+        if not all([name, email, password]):
+            flash('Name, email, and password are required.')
+            return redirect(url_for('register'))
+
+        if Guest.query.filter_by(email=email).first():
+            flash('Email already registered.')
+            return redirect(url_for('register'))
+
+        guest = Guest(name=name, email=email, phone=phone)
+        guest.set_password(password)
+        db.session.add(guest)
+        db.session.commit()
+
+        login_user(guest)
+        return redirect(url_for('dashboard'))
+
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        guest = Guest.query.filter_by(email=email).first()
+        if guest and guest.check_password(password):
+            login_user(guest)
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Invalid email or password.')
+
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    reservations = Reservation.query.filter_by(guest_id=current_user.guest_id).all()
+    return render_template('dashboard.html', reservations=reservations)
+
 @app.route('/room-details/<int:room_id>')
 def room_details(room_id):
     # show detailed information about a specific room
@@ -152,6 +247,7 @@ def room_details(room_id):
     return render_template('room_details.html', room=room)
 
 @app.route('/reserve/<int:room_id>')
+@login_required
 def reserve(room_id):
     # show reservation form for a specific room
     """
@@ -204,15 +300,13 @@ def reserve(room_id):
                          total_cost=total_cost)
 # Make reservation route
 @app.route('/make-reservation', methods=['POST'])
+@login_required
 def make_reservation():
-    # create guest and reservation
+    # create reservation for current user
     """
-    Create a guest and a reservation from form data.
+    Create a reservation for the current logged-in user.
 
     Args:
-        name (str): Guest name
-        email (str): Guest email
-        phone (str): Guest phone number
         room_id (int): Room ID to book
         check_in_str (str): Check-in date in YYYY-MM-DD format
         check_out_str (str): Check-out date in YYYY-MM-DD format
@@ -223,14 +317,11 @@ def make_reservation():
         400: If any of the form fields are missing, or if the date format is invalid
         404: If the room is not found
     """
-    name = request.form.get('name')
-    email = request.form.get('email')
-    phone = request.form.get('phone')
     room_id = request.form.get('room_id', type=int)
     check_in_str = request.form.get('check_in')
     check_out_str = request.form.get('check_out')
 
-    if not all([name, email, phone, room_id, check_in_str, check_out_str]):
+    if not all([room_id, check_in_str, check_out_str]):
         return "All fields are required", 400
 
     try:
@@ -244,10 +335,8 @@ def make_reservation():
     if not room:
         return "Room not found", 404
 
-    # create guest
-    guest = Guest(name=name, email=email, phone=phone)
-    db.session.add(guest)
-    db.session.flush()  # flush to get the guest_id without committing
+    # use current user as guest
+    guest = current_user
 
     # create reservation
     reservation = Reservation(
@@ -411,4 +500,6 @@ def admin_guests_delete(guest_id):
 
 if __name__ == '__main__':
     db.create_all()
+    # seed default rooms on first run
+    seed_default_rooms()
     app.run(debug=True)
