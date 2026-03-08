@@ -1128,3 +1128,37 @@
 2026-03-08 19:17:57,950 INFO: 127.0.0.1 - - [08/Mar/2026 19:17:57] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
 2026-03-08 19:17:57,982 INFO: 127.0.0.1 - - [08/Mar/2026 19:17:57] "[36mGET /static/images/icon.png HTTP/1.1[0m" 304 -
 2026-03-08 19:17:57,982 INFO: 127.0.0.1 - - [08/Mar/2026 19:17:57] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-03-08 19:35:00,730 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-03-08 19:35:00,730 INFO: [33mPress CTRL+C to quit[0m
+2026-03-08 19:35:00,731 INFO:  * Restarting with stat
+2026-03-08 19:35:01,227 WARNING:  * Debugger is active!
+2026-03-08 19:35:01,230 INFO:  * Debugger PIN: 135-435-003
+2026-03-08 19:35:11,304 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:11] "GET / HTTP/1.1" 200 -
+2026-03-08 19:35:11,458 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:11] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-08 19:35:11,544 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:11] "[36mGET /static/images/icon.png HTTP/1.1[0m" 304 -
+2026-03-08 19:35:11,745 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:11] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-03-08 19:35:11,778 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:11] "[36mGET /static/images/balcony.webp HTTP/1.1[0m" 304 -
+2026-03-08 19:35:12,149 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:12] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-08 19:35:16,398 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:16] "GET /login HTTP/1.1" 200 -
+2026-03-08 19:35:16,705 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:16] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-08 19:35:16,738 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:16] "[36mGET /static/images/icon.png HTTP/1.1[0m" 304 -
+2026-03-08 19:35:16,738 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:16] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-03-08 19:35:22,689 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:22] "POST /login HTTP/1.1" 200 -
+2026-03-08 19:35:22,711 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:22] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-08 19:35:22,950 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:22] "[36mGET /static/images/icon.png HTTP/1.1[0m" 304 -
+2026-03-08 19:35:23,028 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:23] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-03-08 19:35:28,976 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:28] "GET / HTTP/1.1" 200 -
+2026-03-08 19:35:29,054 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:29] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-08 19:35:29,226 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:29] "[36mGET /static/images/balcony.webp HTTP/1.1[0m" 304 -
+2026-03-08 19:35:29,304 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:29] "[36mGET /static/images/icon.png HTTP/1.1[0m" 304 -
+2026-03-08 19:35:29,304 INFO: 127.0.0.1 - - [08/Mar/2026 19:35:29] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-03-08 19:36:06,316 INFO: 127.0.0.1 - - [08/Mar/2026 19:36:06] "GET /register HTTP/1.1" 200 -
+2026-03-08 19:36:06,614 INFO: 127.0.0.1 - - [08/Mar/2026 19:36:06] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-08 19:36:06,646 INFO: 127.0.0.1 - - [08/Mar/2026 19:36:06] "[36mGET /static/images/icon.png HTTP/1.1[0m" 304 -
+2026-03-08 19:36:06,649 INFO: 127.0.0.1 - - [08/Mar/2026 19:36:06] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2026-03-08 19:36:14,277 INFO: 127.0.0.1 - - [08/Mar/2026 19:36:14] "[32mPOST /register HTTP/1.1[0m" 302 -
+2026-03-08 19:36:14,285 INFO: 127.0.0.1 - - [08/Mar/2026 19:36:14] "GET /dashboard HTTP/1.1" 200 -
+2026-03-08 19:36:14,449 INFO: 127.0.0.1 - - [08/Mar/2026 19:36:14] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2026-03-08 19:36:14,636 INFO: 127.0.0.1 - - [08/Mar/2026 19:36:14] "[36mGET /static/images/icon.png HTTP/1.1[0m" 304 -
+2026-03-08 19:36:14,636 INFO: 127.0.0.1 - - [08/Mar/2026 19:36:14] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
