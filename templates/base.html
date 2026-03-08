@@ -17,9 +17,12 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
+        <ul class="navbar-nav me-auto">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('rooms') }}">Rooms</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('about') }}">About Us</a>
@@ -27,6 +30,23 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
           </li>
+        </ul>
+        <ul class="navbar-nav">
+          {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('dashboard') }}">My Reservations</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+          </li>
+          {% endif %}
         </ul>
       </div>
     </div>
@@ -53,7 +73,8 @@
     </div>
     <hr style="border-color: rgba(248, 249, 250, 0.2);">
     <div class="text-center">
-      <p class="mb-0">&copy; 2026 Novara Luxe. All rights reserved.</p>
+      <p class="mb-2">&copy; 2026 Novara Luxe. All rights reserved.</p>
+      <a href="{{ url_for('admin_rooms') }}" class="btn btn-light btn-sm">Admin Panel</a>
     </div>
   </div>
 </footer>
