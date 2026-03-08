@@ -1,0 +1,23 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{% if guest %}Edit{% else %}New{% endif %} Guest{% endblock %}
+
+{% block content %}
+<h1>{% if guest %}Edit{% else %}New{% endif %} Guest</h1>
+<form method="post" class="mb-3">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ guest.name if guest else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ guest.email if guest else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="phone" class="form-label">Phone</label>
+        <input type="text" class="form-control" id="phone" name="phone" value="{{ guest.phone if guest else '' }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{{ url_for('admin_guests') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

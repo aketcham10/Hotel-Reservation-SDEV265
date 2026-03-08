@@ -1,0 +1,35 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Rooms{% endblock %}
+
+{% block content %}
+<h1>Rooms</h1>
+<a href="{{ url_for('admin_rooms_new') }}" class="btn btn-primary mb-3">Add New Room</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Room Number</th>
+            <th>Type</th>
+            <th>Rate</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for room in rooms %}
+        <tr>
+            <td>{{ room.room_number }}</td>
+            <td>{{ room.room_type }}</td>
+            <td>${{ room.rate }}</td>
+            <td>{{ room.status }}</td>
+            <td>
+                <a href="{{ url_for('admin_rooms_edit', room_id=room.room_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <form method="post" action="{{ url_for('admin_rooms_delete', room_id=room.room_id) }}" style="display:inline;" onsubmit="return confirm('Are you sure?')">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

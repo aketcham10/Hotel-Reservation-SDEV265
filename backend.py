@@ -1,6 +1,6 @@
 from dbm import sqlite3
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
 from decimal import Decimal
@@ -38,28 +38,9 @@ class Reservation(db.Model):
     check_in_date = db.Column(db.Date, nullable=False)
     check_out_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), default='booked')
-    created_at = db.Column(db.DateTime, default=datetime.now)
-
-class Stay(db.Model):
-    stay_id = db.Column(db.Integer, primary_key=True)
-    reservation_id = db.Column(db.Integer, db.ForeignKey('reservation.reservation_id'))
-    actual_check_in = db.Column(db.DateTime)
-    actual_check_out = db.Column(db.DateTime)
-
-class Charge(db.Model):
-    charge_id = db.Column(db.Integer, primary_key=True)
-    stay_id = db.Column(db.Integer, db.ForeignKey('stay.stay_id'))
-    description = db.Column(db.String(200))
-    amount = db.Column(db.Numeric(10,2))
-    created_at = db.Column(db.DateTime, default=datetime.now)
-
-class Payment(db.Model):
-    payment_id = db.Column(db.Integer, primary_key=True)
-    reservation_id = db.Column(db.Integer, db.ForeignKey('reservation.reservation_id'))
-    amount = db.Column(db.Numeric(10,2))
-    method = db.Column(db.String(20))
-    status = db.Column(db.String(20))
-    paid_at = db.Column(db.DateTime, default=datetime.now)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    guest = db.relationship('Guest', backref='reservations')
+    room = db.relationship('Room', backref='reservations')
 
 @app.route('/')
 def index():
@@ -309,6 +290,124 @@ def get_rooms():
         }
         for r in rooms
     ])
+
+# Admin routes for rooms
+@app.route('/admin/rooms')
+def admin_rooms():
+    rooms = Room.query.all()
+    return render_template('admin_rooms.html', rooms=rooms)
+
+@app.route('/admin/rooms/new', methods=['GET', 'POST'])
+def admin_rooms_new():
+    if request.method == 'POST':
+        room_number = request.form.get('room_number')
+        room_type = request.form.get('room_type')
+        rate = float(request.form.get('rate'))
+        status = request.form.get('status', 'available')
+        room = Room(room_number=room_number, room_type=room_type, rate=rate, status=status)
+        db.session.add(room)
+        db.session.commit()
+        return redirect(url_for('admin_rooms'))
+    return render_template('admin_rooms_form.html', room=None)
+
+@app.route('/admin/rooms/<int:room_id>/edit', methods=['GET', 'POST'])
+def admin_rooms_edit(room_id):
+    room = Room.query.get_or_404(room_id)
+    if request.method == 'POST':
+        room.room_number = request.form.get('room_number')
+        room.room_type = request.form.get('room_type')
+        room.rate = float(request.form.get('rate'))
+        room.status = request.form.get('status')
+        db.session.commit()
+        return redirect(url_for('admin_rooms'))
+    return render_template('admin_rooms_form.html', room=room)
+
+@app.route('/admin/rooms/<int:room_id>/delete', methods=['POST'])
+def admin_rooms_delete(room_id):
+    room = Room.query.get_or_404(room_id)
+    db.session.delete(room)
+    db.session.commit()
+    return redirect(url_for('admin_rooms'))
+
+# Admin routes for reservations
+@app.route('/admin/reservations')
+def admin_reservations():
+    reservations = Reservation.query.all()
+    return render_template('admin_reservations.html', reservations=reservations)
+
+@app.route('/admin/reservations/new', methods=['GET', 'POST'])
+def admin_reservations_new():
+    if request.method == 'POST':
+        guest_id = int(request.form.get('guest_id'))
+        room_id = int(request.form.get('room_id'))
+        check_in = datetime.strptime(request.form.get('check_in'), '%Y-%m-%d').date()
+        check_out = datetime.strptime(request.form.get('check_out'), '%Y-%m-%d').date()
+        status = request.form.get('status', 'booked')
+        reservation = Reservation(guest_id=guest_id, room_id=room_id, check_in_date=check_in, check_out_date=check_out, status=status)
+        db.session.add(reservation)
+        db.session.commit()
+        return redirect(url_for('admin_reservations'))
+    guests = Guest.query.all()
+    rooms = Room.query.all()
+    return render_template('admin_reservations_form.html', reservation=None, guests=guests, rooms=rooms)
+
+@app.route('/admin/reservations/<int:reservation_id>/edit', methods=['GET', 'POST'])
+def admin_reservations_edit(reservation_id):
+    reservation = Reservation.query.get_or_404(reservation_id)
+    if request.method == 'POST':
+        reservation.guest_id = int(request.form.get('guest_id'))
+        reservation.room_id = int(request.form.get('room_id'))
+        reservation.check_in_date = datetime.strptime(request.form.get('check_in'), '%Y-%m-%d').date()
+        reservation.check_out_date = datetime.strptime(request.form.get('check_out'), '%Y-%m-%d').date()
+        reservation.status = request.form.get('status')
+        db.session.commit()
+        return redirect(url_for('admin_reservations'))
+    guests = Guest.query.all()
+    rooms = Room.query.all()
+    return render_template('admin_reservations_form.html', reservation=reservation, guests=guests, rooms=rooms)
+
+@app.route('/admin/reservations/<int:reservation_id>/delete', methods=['POST'])
+def admin_reservations_delete(reservation_id):
+    reservation = Reservation.query.get_or_404(reservation_id)
+    db.session.delete(reservation)
+    db.session.commit()
+    return redirect(url_for('admin_reservations'))
+
+# Admin routes for guests
+@app.route('/admin/guests')
+def admin_guests():
+    guests = Guest.query.all()
+    return render_template('admin_guests.html', guests=guests)
+
+@app.route('/admin/guests/new', methods=['GET', 'POST'])
+def admin_guests_new():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        phone = request.form.get('phone')
+        email = request.form.get('email')
+        guest = Guest(name=name, phone=phone, email=email)
+        db.session.add(guest)
+        db.session.commit()
+        return redirect(url_for('admin_guests'))
+    return render_template('admin_guests_form.html', guest=None)
+
+@app.route('/admin/guests/<int:guest_id>/edit', methods=['GET', 'POST'])
+def admin_guests_edit(guest_id):
+    guest = Guest.query.get_or_404(guest_id)
+    if request.method == 'POST':
+        guest.name = request.form.get('name')
+        guest.phone = request.form.get('phone')
+        guest.email = request.form.get('email')
+        db.session.commit()
+        return redirect(url_for('admin_guests'))
+    return render_template('admin_guests_form.html', guest=guest)
+
+@app.route('/admin/guests/<int:guest_id>/delete', methods=['POST'])
+def admin_guests_delete(guest_id):
+    guest = Guest.query.get_or_404(guest_id)
+    db.session.delete(guest)
+    db.session.commit()
+    return redirect(url_for('admin_guests'))
 
 if __name__ == '__main__':
     db.create_all()

@@ -1,0 +1,33 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Guests{% endblock %}
+
+{% block content %}
+<h1>Guests</h1>
+<a href="{{ url_for('admin_guests_new') }}" class="btn btn-primary mb-3">Add New Guest</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for guest in guests %}
+        <tr>
+            <td>{{ guest.name }}</td>
+            <td>{{ guest.email }}</td>
+            <td>{{ guest.phone }}</td>
+            <td>
+                <a href="{{ url_for('admin_guests_edit', guest_id=guest.guest_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <form method="post" action="{{ url_for('admin_guests_delete', guest_id=guest.guest_id) }}" style="display:inline;" onsubmit="return confirm('Are you sure?')">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
